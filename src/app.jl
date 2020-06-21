@@ -21,6 +21,10 @@ function launchServer(port)
 	  json("Hello $(jsonpayload()["name"])")
 	end
 
+	route("/text", method = POST) do
+	  julia2wat.code_wat(rawpayload())
+	end
+
     Genie.AppServer.startup()
 end
 

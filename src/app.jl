@@ -1,9 +1,6 @@
 using Genie
 using Genie.Router
-
-module julia2wat
-	greet() = "Hello from module"
-end
+include("julia2wat.jl")
 
 function launchServer(port)
 

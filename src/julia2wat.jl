@@ -1,4 +1,8 @@
 module julia2wat
+# julia:
+# HTTP.request("POST", "https://julia2wat.herokuapp.com/text", [("Content-Type", "text/plain")], """f(x)=x*7; f(3.1)""")
+# js:
+# https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
 
 using Base: CodeInfo, SlotNumber, GlobalRef, GotoNode, iterate
 #using Core: , getfield

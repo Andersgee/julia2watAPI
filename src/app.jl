@@ -1,6 +1,10 @@
 using Genie
 using Genie.Router
 
+module julia2wat
+	greet() = "Hello from module"
+end
+
 function launchServer(port)
 
     Genie.config.run_as_server = true
@@ -10,7 +14,7 @@ function launchServer(port)
     println("port set to $(port)")
 
     route("/") do
-        greet()
+        julia2wat.greet()
     end
 
     Genie.AppServer.startup()
@@ -18,4 +22,4 @@ end
 
 launchServer(parse(Int, ARGS[1]))
 
-greet() = "Hello from module"
+

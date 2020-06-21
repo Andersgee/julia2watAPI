@@ -22,7 +22,13 @@ function launchServer(port)
 	  json("Hello $(jsonpayload()["name"])")
 	end
 
+  #=
 	route("/text", method = POST) do
+	  julia2wat.code_wat(rawpayload())
+  end
+  =#
+  
+  route("/text", method = OPTIONS) do
 	  julia2wat.code_wat(rawpayload())
 	end
 

@@ -1,5 +1,4 @@
-using Genie
-using Genie.Router
+using Genie, Genie.Router, Genie.Requests, Genie.Renderer.Json
 include("julia2wat.jl")
 
 function launchServer(port)
@@ -13,6 +12,14 @@ function launchServer(port)
     route("/") do
         julia2wat.code_wat("f(x)=x^5", [3.0])
     end
+
+
+	route("/jsonpayload", method = POST) do
+	  @show jsonpayload()
+	  @show rawpayload()
+
+	  json("Hello $(jsonpayload()["name"])")
+	end
 
     Genie.AppServer.startup()
 end

@@ -10,7 +10,7 @@ function launchServer(port)
     println("port set to $(port)")
 
     route("/") do
-        julia2wat.code_wat("f(x)=x^5", [3.0])
+        julia2wat.code_wat("f(x)=x*5; f(3.0)")
     end
 
 

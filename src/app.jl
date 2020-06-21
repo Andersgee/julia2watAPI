@@ -1,5 +1,6 @@
 using Genie
 using Genie.Router
+using kek
 
 function launchServer(port)
 
@@ -10,7 +11,7 @@ function launchServer(port)
     println("port set to $(port)")
 
     route("/") do
-        "Hi there!"
+        kek.greet()
     end
 
     Genie.AppServer.startup()

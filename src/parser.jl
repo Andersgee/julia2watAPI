@@ -57,7 +57,13 @@ function parsefunc(ssa, items, head)
 end
 
 function specialfunc(ssa, items, head)
-    if !(string(head) in ["return","=","iterate","gotoifnot",":","getfield","ifelse","setindex!"])
+    #global userfuncs
+    if (string(head) in keys(userfuncs))
+        parsefunc(ssa, items, head)
+        println("userfuncs head: ",head)
+        println("userfuncs items: ",items)
+        return true
+    elseif !(string(head) in ["return","=","iterate","gotoifnot",":","getfield","ifelse","setindex!"])
         return false
     #parse a few special functions manually in a somewhat hacky way
     elseif head == :(setindex!)

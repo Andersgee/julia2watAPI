@@ -12,14 +12,27 @@ include("ops.jl")
 include("SSA.jl")
 include("parser.jl")
 
-function code_wat(str)
-    result = eval(Meta.parse(str))
-    
-    ex=Meta.parse(str).args[end] #only lower the last expression in the code block.
-    func = eval(ex.args[1])
-    A = Base.typesof(eval(ex.args[2:end]...))
-    cinfo, Rtype = code_typed(func, A; optimize=false, debuginfo=:none)[1]
+function userfuncsDict(exs)
+    funcs=[]
+    for i=1:length(exs.args)-1
+        if isa(exs.args[i],Expr)
+            push!(funcs, exs.args[i])
+        end
+    end
+    names = [string(funcs[i].args[1].args[1]) for i=1:length(funcs)]
+    return Dict(names .=> funcs)
+end
 
+function code_wat(str)
+    exs = Meta.parse(str)
+    global userfuncs = userfuncsDict(exs)
+    #result = eval(Meta.parse(str)) #could use this for syntax check
+    
+    #user supplied args for last expression
+    func = eval(userfuncs[string(exs.args[end].args[1])])
+    A = Base.typesof(eval(exs.args[end].args[2:end])...)
+    cinfo, Rtype = code_typed(func, A; optimize=false, debuginfo=:none)[1]
+    
     code = cinfo.code
     SSAtypes = cinfo.ssavaluetypes
     global slotnames = cinfo.slotnames

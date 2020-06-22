@@ -14,18 +14,16 @@ function setup() {
   editor.setFontSize("18pt");
 
   editor.setValue(
-    `function kek(x)
-  a = sqrt(2)
-  s = 0.0
-  for i=1:4
-    s += x*a
-  end
-  return s
+    `hej(x) = x^4.1
+
+apa(x,y) = sqrt(x+y)
+
+function kek(x)
+  a = sqrt(2.0)
+  return apa(x,4.0)*a + hej(x)
 end
 
-kek(4.1);`,
-    1
-  );
+kek(4.1)`,1);
 
   but = document.getElementById("but");
   but.addEventListener("click", julia2wat);

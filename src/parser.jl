@@ -96,7 +96,7 @@ function specialfunc(ssa, items, head)
         parseitem(ssa, items[1]) #ifelse(condition,a,b) => select(a,b,condition)
         push!(ssa, ")")
     elseif head == Symbol("return")
-        if string(items[1]) != "Main.nothing"
+        if string(items[1]) != "Main.julia2wat.nothing"
             parseitems(ssa, items)
         end
     elseif head == :(=)

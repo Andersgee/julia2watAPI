@@ -23,14 +23,14 @@ function userfuncsDict(exs)
     return Dict(names .=> funcs)
 end
 
-function funcA2wat(func, A)
+function funcA2wat(func, A; doexport=false)
     cinfo, Rtype = code_typed(func, A; optimize=false, debuginfo=:none)[1]
 
     code = cinfo.code
     SSAtypes = cinfo.ssavaluetypes
     global slotnames = cinfo.slotnames
     global slottypes = cinfo.slottypes
-    funcstr_start = funchead(cinfo,A,Rtype,slotnames,slottypes)
+    funcstr_start = funchead(cinfo,A,Rtype,slotnames,slottypes,doexport)
     global SSA = []
     global ssatype = ""
     for i=1:length(code)
@@ -53,7 +53,7 @@ function code_wat(str)
     #user supplied args for last expression
     func = eval(userfuncs[string(exs.args[end].args[1])])
     A = Base.typesof(eval(exs.args[end].args[2:end])...)
-    wat = funcA2wat(func, A)
+    wat = funcA2wat(func, A, doexport=true)
 
     #println("userfuncsargs: ",userfuncsargs)    
     wats = []

@@ -1,8 +1,10 @@
-function funchead(cinfo,A,Rtype,slotnames,slottypes)
+function funchead(cinfo,A,Rtype,slotnames,slottypes,doexport)
     str = []
     fname = cinfo.linetable[1].method
     push!(str, string("(func \$",fname))
-    push!(str, string(" (export \"",fname,"\")"))
+    if (doexport)
+        push!(str, string(" (export \"",fname,"\")"))
+    end
     paramtypes = getfield(A,3)
     for i=1:length(paramtypes)
         push!(str, string(" (param \$",slotnames[i+1]," ",type2str(paramtypes[i]),")"))

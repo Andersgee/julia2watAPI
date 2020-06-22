@@ -8,6 +8,12 @@ parseitem(ssa, item::TypedSlot) = push!(ssa, "(local.get \$$(slotnames[item.id])
 parseitem(ssa, item::Nothing) = push!(ssa, "(i32.const 0)")
 parseitem(ssa, item::Number) = push!(ssa, "($(itemtype(item)).const $(item))")
 
+function parseitem(ssa, item::Core.Compiler.Const)
+    if !(isa(item.val,Expr) && string(item.val.args[1]) == "julia2wat.nothing")
+        parseitem(ssa, item.val)
+    end
+end
+
 
 function parseitem(ssa, item::Expr)
     if item.head != :(call)
@@ -57,12 +63,7 @@ function parsefunc(ssa, items, head)
 end
 
 function funcargitem2type(item)
-    #println("item: ",item)
-    #println("typeof(item): ",typeof(item))
-    
     if isa(item,SlotNumber)
-        #println("item.id: ",item.id)
-        #println("slottypes[item.id]: ",slottypes[item.id])
         return slottypes[item.id]
     elseif isa(item,Number)
         if (typeof(item) <: AbstractFloat)
@@ -72,35 +73,14 @@ function funcargitem2type(item)
         end
     end
     return Float64
-        
 end
-#=
-function funcargitem2type(item)
-    #to get types for code_typed on functions called within function
-    if (typeof(item) <: AbstractFloat)
-        return :(Float64)
-    elseif isa(item,SlotNumber)
 
-    
-    type2str(t) = (t <: AbstractFloat) ? "f32" : "i32";
-itemtype(item) = type2str(typeof(item))
-
-parseitems(ssa, items) = parseitem.((ssa,), items)
-parseitem(ssa, item) = push!(ssa, item)
-parseitem(ssa, item::SlotNumber) = push!(ssa, "(local.get \$$(slotnames[item.id]))")
-parseitem(ssa, item::TypedSlot) = push!(ssa, "(local.get \$$(slotnames[item.id]))")
-parseitem(ssa, item::Nothing) = push!(ssa, "(i32.const 0)")
-parseitem(ssa, item::Number) = push!(ssa, "($(itemtype(item)).const $(item))")
-
-end
-=#
 function specialfunc(ssa, items, head)
     if (string(head) in keys(userfuncs))
-        parsefunc(ssa, items, head)
+        parsefunc(ssa, items, head) #parse like normal
+        #but save what types the function was called with
+        #use userfuncsargs later with funcA2wat()
         userfuncsargs[string(head)] = Tuple{funcargitem2type.(items)...}
-        #println("slottypes: ",slottypes)
-        #println("userfuncs head: ",head)
-        #println("userfuncs items: ",items)
         return true
     elseif !(string(head) in ["return","=","iterate","gotoifnot",":","getfield","ifelse","setindex!"])
         return false
@@ -108,6 +88,7 @@ function specialfunc(ssa, items, head)
     elseif head == :(setindex!)
         push!(ssa, "call \$setindex") #without exclamation
         parseitems(ssa, items)
+        #println("setindex items: ",items)
     elseif head == :(ifelse)
         push!(ssa, "(select")
         parseitem(ssa, items[2])

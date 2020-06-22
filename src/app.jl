@@ -25,8 +25,7 @@ function launchServer(port)
 	end
 
   route("/text", method = POST) do
-    str = rawpayload()
-	  julia2wat.code_wat("begin $str end")
+	  julia2wat.code_wat(rawpayload())
   end
   
   Genie.AppServer.startup()

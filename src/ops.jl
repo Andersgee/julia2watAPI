@@ -15,6 +15,8 @@ f32ops = Dict(
     :(floor) => ["f32.floor",1],
     :(trunc)=>["f32.trunc",1],
     :(round)=>["f32.nearest",1],
+    :(float)=>["f32.convert_i32_s", 1],
+    :(Int)=>["i32.trunc_f32_s",1]
 #=
 :(neg_float)=>"f32.neg", #negation
 :(copysign_float)=>"f32.copysign", #copysign
@@ -40,4 +42,6 @@ i32ops = Dict(
     :(&&)=>["i32.and",2],
     :(||)=>["i32.or",2],
     :(xor)=>["i32.xor",2],
+    :(float)=>["f32.convert_i32_s", 1],
+    :(Int)=>["i32.trunc_f32_s",1]
 )

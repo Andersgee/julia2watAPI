@@ -45,17 +45,17 @@ function funcA2wat(func, A; doexport=false)
 end
 
 function code_wat(str)
-    exs = Meta.parse(str)
+    exs = Meta.parse("begin $str end")
     result = eval(exs) #if result errors the return "syntax error" or smth
     global userfuncs = userfuncsDict(exs)
     global userfuncsargs = Dict()
     
     #user supplied args for last expression
     func = eval(userfuncs[string(exs.args[end].args[1])])
-    A = Base.typesof(eval(exs.args[end].args[2:end])...)
+    #A = Base.typesof(eval(exs.args[end].args[2:end])...) #possible bug found: Base.typesof yields Expr (not type) for stuff like zeros(2,1)
+    A = Tuple{[typeof(eval(exs.args[end].args[i])) for i=2:length(exs.args[end].args)]...}
     wat = funcA2wat(func, A, doexport=true)
 
-    #println("userfuncsargs: ",userfuncsargs)    
     wats = []
     for name in keys(userfuncsargs)
         #func = eval(userfuncs[name])

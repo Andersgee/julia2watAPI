@@ -23,9 +23,17 @@ function userfuncsDict(exs)
     return Dict(names .=> funcs)
 end
 
+function func2wat()
+
+end
+
 function code_wat(str)
+    modulestr_start = "(module \n"
+    modulestr_end = ")"
+
     exs = Meta.parse(str)
     global userfuncs = userfuncsDict(exs)
+    global userfuncsargs = Dict()
     #result = eval(Meta.parse(str)) #could use this for syntax check
     
     #user supplied args for last expression
@@ -36,11 +44,7 @@ function code_wat(str)
     code = cinfo.code
     SSAtypes = cinfo.ssavaluetypes
     global slotnames = cinfo.slotnames
-
-    modulestr_start = "(module \n"
-    modulestr_end = ")"
     funcstr_start = funchead(cinfo,A,Rtype,slotnames)
-    funcstr_end = ")\n"
     global SSA = []
     global ssatype = ""
     for i=1:length(code)
@@ -51,9 +55,9 @@ function code_wat(str)
     end
     inlineSSA(SSA)
     insertBB(SSA)
+    wat = join(vcat(funcstr_start, stringifySSA(SSA), ")\n"))
 
-    wat = stringifySSA(SSA)
-    return join(vcat(modulestr_start,funcstr_start,wat,funcstr_end,modulestr_end))
+    return join(vcat(modulestr_start, wat, modulestr_end))
 end
 
 end

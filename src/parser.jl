@@ -57,11 +57,11 @@ function parsefunc(ssa, items, head)
 end
 
 function specialfunc(ssa, items, head)
-    #global userfuncs
     if (string(head) in keys(userfuncs))
         parsefunc(ssa, items, head)
-        println("userfuncs head: ",head)
-        println("userfuncs items: ",items)
+        userfuncsargs[string(head)] = items
+        #println("userfuncs head: ",head)
+        #println("userfuncs items: ",items)
         return true
     elseif !(string(head) in ["return","=","iterate","gotoifnot",":","getfield","ifelse","setindex!"])
         return false

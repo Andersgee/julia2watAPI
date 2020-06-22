@@ -24,6 +24,7 @@ kek(4.1);`,
 
   but = document.getElementById("but");
   but.addEventListener("click", julia2wat);
+  wat_text = document.getElementById("wat_text");
 }
 
 async function fetchwat(text) {
@@ -43,6 +44,7 @@ async function fetchwat(text) {
 function julia2wat() {
   fetchwat(editor.getValue()).then((wat) => {
     console.log("wat: ", wat);
+    wat_text.innerHTML = wat;
   });
 
   console.log("editor.getValue(): ", editor.getValue());

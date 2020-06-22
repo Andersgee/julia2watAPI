@@ -23,24 +23,9 @@ function userfuncsDict(exs)
     return Dict(names .=> funcs)
 end
 
-function func2wat()
-
-end
-
-function code_wat(str)
-    modulestr_start = "(module \n"
-    modulestr_end = ")"
-
-    exs = Meta.parse(str)
-    global userfuncs = userfuncsDict(exs)
-    global userfuncsargs = Dict()
-    #result = eval(Meta.parse(str)) #could use this for syntax check
-    
-    #user supplied args for last expression
-    func = eval(userfuncs[string(exs.args[end].args[1])])
-    A = Base.typesof(eval(exs.args[end].args[2:end])...)
+function funcA2wat(func, A)
     cinfo, Rtype = code_typed(func, A; optimize=false, debuginfo=:none)[1]
-    
+
     code = cinfo.code
     SSAtypes = cinfo.ssavaluetypes
     global slotnames = cinfo.slotnames
@@ -55,9 +40,21 @@ function code_wat(str)
     end
     inlineSSA(SSA)
     insertBB(SSA)
-    wat = join(vcat(funcstr_start, stringifySSA(SSA), ")\n"))
+    return join(vcat(funcstr_start, stringifySSA(SSA), ")\n"))
+end
 
-    return join(vcat(modulestr_start, wat, modulestr_end))
+function code_wat(str)
+    exs = Meta.parse(str)
+    result = eval(exs) #if result errors the return "syntax error" or smth
+    global userfuncs = userfuncsDict(exs)
+    global userfuncsargs = Dict()
+    
+    #user supplied args for last expression
+    func = eval(userfuncs[string(exs.args[end].args[1])])
+    A = Base.typesof(eval(exs.args[end].args[2:end])...)
+    wat = funcA2wat(func, A)
+
+    return join(vcat("(module \n", wat, ")"))
 end
 
 end

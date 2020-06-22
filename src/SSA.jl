@@ -3,28 +3,28 @@ function funchead(cinfo,A,Rtype,slotnames)
     slottypes = cinfo.slottypes
     fname = cinfo.linetable[1].method
     push!(str, string("(func \$",fname))
-    push!(str, string("(export \"",fname,"\")"))
+    push!(str, string(" (export \"",fname,"\")"))
     paramtypes = getfield(A,3)
     for i=1:length(paramtypes)
-        push!(str, string("(param \$",slotnames[i+1]," ",type2str(paramtypes[i]),")"))
+        push!(str, string(" (param \$",slotnames[i+1]," ",type2str(paramtypes[i]),")"))
     end
     if !(Rtype == Nothing)
-        push!(str,string("(result ",type2str(Rtype),")"))
+        push!(str,string(" (result ",type2str(Rtype),")"))
     end
 
     for i=2+length(paramtypes):length(slotnames)
         if isa(slottypes[i],Union)
             iteratortuple = getfield(slottypes[i],2)
             iteratortype = getfield(iteratortuple,3)[1]
-            push!(str, string("(local \$","_",i," ",type2str(iteratortype),")"))
+            push!(str, string("\n(local \$","_",i," ",type2str(iteratortype),")"))
             slotnames[i] = Symbol("_",i)
             slottypes[i] = iteratortype
         else
-            push!(str,string("(local \$",slotnames[i]," ",type2str(slottypes[i]),")"))
+            push!(str,string("\n(local \$",slotnames[i]," ",type2str(slottypes[i]),")"))
         end 
     end
     push!(str, "\n")
-    return join(str,"\n")
+    return join(str)
 end
 
 function stringifySSA(SSA)

@@ -15,7 +15,12 @@ function setup() {
 
   editor.setValue(
     `function kek(x)
-  return x*7;
+  a = sqrt(2)
+  s = 0.0
+  for i=1:4
+    s += x*a
+  end
+  return s
 end
 
 kek(4.1);`,
@@ -44,7 +49,7 @@ async function fetchwat(text) {
 function julia2wat() {
   fetchwat(editor.getValue()).then((wat) => {
     console.log("wat: ", wat);
-    wat_text.innerHTML = wat;
+    wat_text.innerHTML = `<code class="language-wasm">${wat}</code>`
   });
 
   console.log("editor.getValue(): ", editor.getValue());

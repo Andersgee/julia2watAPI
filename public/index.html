@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>test</title>
+<title>julia2wat</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.min.js"></script>
 <script src="js/theme-monokai.js" charset="utf-8"></script>
 <script src="js/mode-julia.js" charset="utf-8"></script>
+<link rel="stylesheet" href="prism.css" />
+
 <script defer src="/js/main.js"></script>
 </head>
 <body>
   <center>
-  <h4>julia2wat
   <button id="but">convert</button><br>
   </h4>
   </center>
-  <div style="height:100vh; width:100%; display:inline-block">
-  	<div id="editor" style="height:100%; width:50%; display:inline-block"></div>
-  	<code id="wat_text" style="height:100%; width:40%; display:inline-block"></code>
+  <div style="height:80vh; width:100%; display:inline-block">
+  	<div id="editor" style="height:100%; width:50%; display:inline-block; position: relative; top:20";></div>
+  	
+  	<pre id="wat_text" class="language-wasm" style="display:inline-block; position: absolute; top:20; width:45%;"> </pre>
     </div>
+  <script src="prism.js"></script>    
 </body>
 </html>

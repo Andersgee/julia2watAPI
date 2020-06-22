@@ -56,10 +56,49 @@ function parsefunc(ssa, items, head)
     end
 end
 
+function funcargitem2type(item)
+    #println("item: ",item)
+    #println("typeof(item): ",typeof(item))
+    
+    if isa(item,SlotNumber)
+        #println("item.id: ",item.id)
+        #println("slottypes[item.id]: ",slottypes[item.id])
+        return slottypes[item.id]
+    elseif isa(item,Number)
+        if (typeof(item) <: AbstractFloat)
+            return Float64
+        else
+            return Int64
+        end
+    end
+    return Float64
+        
+end
+#=
+function funcargitem2type(item)
+    #to get types for code_typed on functions called within function
+    if (typeof(item) <: AbstractFloat)
+        return :(Float64)
+    elseif isa(item,SlotNumber)
+
+    
+    type2str(t) = (t <: AbstractFloat) ? "f32" : "i32";
+itemtype(item) = type2str(typeof(item))
+
+parseitems(ssa, items) = parseitem.((ssa,), items)
+parseitem(ssa, item) = push!(ssa, item)
+parseitem(ssa, item::SlotNumber) = push!(ssa, "(local.get \$$(slotnames[item.id]))")
+parseitem(ssa, item::TypedSlot) = push!(ssa, "(local.get \$$(slotnames[item.id]))")
+parseitem(ssa, item::Nothing) = push!(ssa, "(i32.const 0)")
+parseitem(ssa, item::Number) = push!(ssa, "($(itemtype(item)).const $(item))")
+
+end
+=#
 function specialfunc(ssa, items, head)
     if (string(head) in keys(userfuncs))
         parsefunc(ssa, items, head)
-        userfuncsargs[string(head)] = items
+        userfuncsargs[string(head)] = Tuple{funcargitem2type.(items)...}
+        #println("slottypes: ",slottypes)
         #println("userfuncs head: ",head)
         #println("userfuncs items: ",items)
         return true

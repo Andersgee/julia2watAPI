@@ -1,6 +1,5 @@
-function funchead(cinfo,A,Rtype,slotnames)
+function funchead(cinfo,A,Rtype,slotnames,slottypes)
     str = []
-    slottypes = cinfo.slottypes
     fname = cinfo.linetable[1].method
     push!(str, string("(func \$",fname))
     push!(str, string(" (export \"",fname,"\")"))

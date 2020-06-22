@@ -29,7 +29,8 @@ function funcA2wat(func, A)
     code = cinfo.code
     SSAtypes = cinfo.ssavaluetypes
     global slotnames = cinfo.slotnames
-    funcstr_start = funchead(cinfo,A,Rtype,slotnames)
+    global slottypes = cinfo.slottypes
+    funcstr_start = funchead(cinfo,A,Rtype,slotnames,slottypes)
     global SSA = []
     global ssatype = ""
     for i=1:length(code)
@@ -54,7 +55,14 @@ function code_wat(str)
     A = Base.typesof(eval(exs.args[end].args[2:end])...)
     wat = funcA2wat(func, A)
 
-    return join(vcat("(module \n", wat, ")"))
+    #println("userfuncsargs: ",userfuncsargs)    
+    wats = []
+    for name in keys(userfuncsargs)
+        #func = eval(userfuncs[name])
+        #A = userfuncsargs[name]
+        push!(wats, funcA2wat(eval(userfuncs[name]), userfuncsargs[name]))
+    end
+    return join(vcat("(module", wat, wats...,")"),"\n")
 end
 
 end

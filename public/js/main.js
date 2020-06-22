@@ -48,11 +48,11 @@ async function fetchwat(text) {
 
 function julia2wat() {
   fetchwat(editor.getValue()).then((wat) => {
-    console.log("wat: ", wat);
+    //console.log("wat: ", wat);
     wat_text.innerHTML = `<code class="language-wasm">${wat}</code>`
   });
 
-  console.log("editor.getValue(): ", editor.getValue());
+  //console.log("editor.getValue(): ", editor.getValue());
 
   /*
   let text = editor.getValue();

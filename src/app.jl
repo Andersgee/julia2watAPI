@@ -32,7 +32,7 @@ function launchServer(port)
   Genie.AppServer.startup()
 end
 
-#launchServer(parse(Int, ARGS[1]))
-launchServer(8000)
+launchServer(parse(Int, ARGS[1]))
+#launchServer(8000)
 
 

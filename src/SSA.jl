@@ -10,21 +10,22 @@ function funchead(cinfo,A,Rtype,slotnames,slottypes,doexport)
         push!(str, string(" (param \$",slotnames[i+1]," ",type2str(paramtypes[i]),")"))
     end
     if !(Rtype == Nothing)
-        push!(str,string(" (result ",type2str(Rtype),")"))
+        push!(str,string(" (result ",type2str(Rtype),")\n"))
+    else
+        push!(str, "\n")
     end
 
     for i=2+length(paramtypes):length(slotnames)
         if isa(slottypes[i],Union)
             iteratortuple = getfield(slottypes[i],2)
             iteratortype = getfield(iteratortuple,3)[1]
-            push!(str, string("\n(local \$","_",i," ",type2str(iteratortype),")"))
+            push!(str, string("(local \$","_",i," ",type2str(iteratortype),") "))
             slotnames[i] = Symbol("_",i)
             slottypes[i] = iteratortype
         else
-            push!(str,string("\n(local \$",slotnames[i]," ",type2str(slottypes[i]),")"))
+            push!(str,string("(local \$",slotnames[i]," ",type2str(slottypes[i]),") "))
         end 
     end
-    push!(str, "\n")
     return join(str)
 end
 

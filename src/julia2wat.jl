@@ -62,7 +62,7 @@ function code_wat(str)
         #A = userfuncsargs[name]
         push!(wats, funcA2wat(eval(userfuncs[name]), userfuncsargs[name]))
     end
-    return join(vcat("(module", wat, wats...,")"),"\n")
+    return join(vcat("(module\n", wat, wats...,")"),"\n")
 end
 
 end

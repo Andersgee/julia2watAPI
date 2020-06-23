@@ -47,7 +47,10 @@ async function fetchwat(text) {
 function julia2wat() {
   fetchwat(editor.getValue()).then((wat) => {
     //console.log("wat: ", wat);
-    wat_text.innerHTML = `<code class="language-wasm">${wat}</code>`
+    //wat_text.innerHTML = `<code class="language-wasm">${wat}</code>`
+    wat_text.innerHTML = wat
+    Prism.highlightElement(wat_text);
+    //Prism.highlightAll();
   });
 
   //console.log("editor.getValue(): ", editor.getValue());

@@ -14,7 +14,8 @@ function setup() {
   editor.setFontSize("18pt");
 
   editor.setValue(`function foo(y,x,z)
-  for i=2:5
+  N=length(y)
+  for i=2:N
     y[i] = bar(x,9.0) * y[i-1]*z
   end
   return nothing

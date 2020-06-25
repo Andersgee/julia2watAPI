@@ -34,6 +34,7 @@ function funchead(cinfo,A,Rtype,slotnames,slottypes,doexport)
     for i=n:N
         push!(str,string("(local \$",slotnames[i]," ",type2str(slottypes[i]),") "))
     end
+    push!(str, "\n")
     return join(str)
 end
 

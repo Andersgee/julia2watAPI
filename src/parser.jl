@@ -82,9 +82,13 @@ function specialfunc(ssa, items, head)
         #use userfuncsargs later with funcA2wat()
         userfuncsargs[string(head)] = Tuple{funcargitem2type.(items)...}
         return true
-    elseif !(string(head) in ["return","=","iterate","gotoifnot",":","getfield","ifelse","setindex!","getindex"])
+    elseif !(string(head) in ["length","return","=","iterate","gotoifnot",":","getfield","ifelse","setindex!","getindex"])
         return false
     #parse a few special functions manually in a somewhat hacky way
+    elseif head == :(length)
+        push!(ssa, "(i32.trunc_f32_s")
+        parseitem(ssa, items[1])
+        push!(ssa, ")")
     elseif head == :(setindex!)
         push!(ssa, "call \$setindex") #without exclamation
         parseitems(ssa, items)

@@ -13,20 +13,20 @@ function setup() {
   });
   editor.setFontSize("18pt");
 
-  editor.setValue(
-    `kek(x,y) = y*sqrt(x*2.0)
-
-function hoj(y,x)
+  editor.setValue(`function foo(y,x,z)
   for i=2:5
-    y[i]=kek(x,4.1)*y[i-1]
+    y[i] = bar(x,9.0) * y[i-1]*z
   end
   return nothing
 end
 
-hoj(zeros(5,1), 5.1)`,1);
+bar(x,y) = y*sqrt(x*2.0)
 
-  but = document.getElementById("but");
-  but.addEventListener("click", julia2wat);
+#press Ctrl+Enter to convert to webassembly text format
+foo(zeros(5,1), 1.0, 1.0)`,1);
+
+  //but = document.getElementById("but");
+  //but.addEventListener("click", julia2wat);
   wat_text = document.getElementById("wat_text");
 }
 

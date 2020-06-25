@@ -1,11 +1,10 @@
 module julia2wat
 # julia:
-# HTTP.request("POST", "https://julia2wat.herokuapp.com/text", [("Content-Type", "text/plain")], """f(x)=x*7; f(3.1)""")
-# js:
-# https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest
+# textpost = """f(x)=x*7; f(3.1)"""
+# using HTTP
+# HTTP.request("POST", "https://julia2wat.herokuapp.com/text", [("Content-Type", "text/plain")], textpost)
 
 using Base: CodeInfo, SlotNumber, GlobalRef, GotoNode, iterate
-#using Core: , getfield
 using Core: TypedSlot, SSAValue
 
 include("ops.jl")
@@ -47,7 +46,17 @@ end
 
 function code_wat(str)
     exs = Meta.parse("begin $str end")
-    result = eval(exs) #if result errors the return "syntax error" or smth
+    try
+        result = eval(exs)
+    catch e
+        return ";;Error: $(e)"
+    end
+    result = eval(exs)
+
+    if !(isa(result,Number) || isa(result,Nothing))
+        return ";;Nope... Webassembly functions can only return single numbers (or nothing)\n;;However, you can modify arrays (aka memory) inside functions."
+    end
+
     global userfuncs = userfuncsDict(exs)
     global userfuncsargs = Dict()
     global builtins = Dict()
@@ -66,7 +75,8 @@ function code_wat(str)
     for fname in keys(builtins)
         push!(wats, builtinswat[fname])
     end
-    return join(vcat("(module\n", wat, wats...,")"),"\n")
+    evalresult = isa(result,Nothing) ? "" : "\n;;evaluated by Julia to: $(result)"
+    return join(vcat("(module\n", wat, wats...,")",evalresult),"\n")
 end
 
 end

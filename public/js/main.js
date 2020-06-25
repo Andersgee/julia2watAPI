@@ -14,13 +14,13 @@ function setup() {
   editor.setFontSize("18pt");
 
   editor.setValue(
-    `kek(x) = sqrt(x*2.0)
+    `kek(x,y) = y*sqrt(x*2.0)
 
 function hoj(y,x)
-    for i=1:5
-        y[i]=x*float(i)*kek(x)
-    end
-    return nothing
+  for i=2:5
+    y[i]=kek(x,4.1)*y[i-1]
+  end
+  return nothing
 end
 
 hoj(zeros(5,1), 5.1)`,1);
@@ -31,10 +31,9 @@ hoj(zeros(5,1), 5.1)`,1);
 }
 
 async function fetchwat(text) {
-  //return await fetch("https://julia2wat.herokuapp.com/text", {
     return await fetch("/text", {
     method: "POST",
-    cache: "reload", // *default, no-cache, reload, force-cache, only-if-cached
+    cache: "reload",
     credentials: "omit",
     headers: {
       "Content-Type": "text/plain",
@@ -46,34 +45,16 @@ async function fetchwat(text) {
 
 function julia2wat() {
   fetchwat(editor.getValue()).then((wat) => {
-    //console.log("wat: ", wat);
-    //wat_text.innerHTML = `<code class="language-wasm">${wat}</code>`
     wat_text.innerHTML = wat
     Prism.highlightElement(wat_text);
     //Prism.highlightAll();
   });
-
-  //console.log("editor.getValue(): ", editor.getValue());
-
-  /*
-  let text = editor.getValue();
-  console.log("text:", text);
-  editor.getValue()
-  //HTTP.request("POST", "https://julia2wat.herokuapp.com/text", [("Content-Type", "text/plain")], """f(x)=x*7; f(3.1)""")
-
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", "https://julia2wat.herokuapp.com/text", true);
-  xhr.setRequestHeader("Content-Type", "text/plain");
-  xhr.send(editor.getValue());
-
-  fetch("https://julia2wat.herokuapp.com/text", {
-    method: "POST",
-    headers: { "Content-Type": "text/plain" },
-    body: editor.getValue(),
-  }).then((res) => {
-    console.log("Request complete! response:", res);
-  });
-  */
 }
+
+window.addEventListener("keydown", (e) => {
+  if (e.ctrlKey && e.keyCode === 13) {
+    julia2wat();
+  }
+})
 
 window.onload = setup();

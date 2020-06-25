@@ -4,7 +4,7 @@
   ;; ifelse(k<N, i, 0)
   ;;(select (local.get $i) (i32.const 0) (i32.le_s (local.get $i) (local.get $N))) ;;assuming n<N
   ;; ifelse(n<k<N, i, 0)
-  (select (local.get $i) (i32.const 0) (i32.eq (i32.le_s (local.get $i) (local.get $N)) (i32.ge_s (local.get $i) (local.get $n))))
+  (select (local.get $i) (i32.const 0) (i32.and (i32.le_s (local.get $i) (local.get $N)) (i32.ge_s (local.get $i) (local.get $n))))
 )
 
 (func $getindex (param $v i32) (param $i i32) (result f32)

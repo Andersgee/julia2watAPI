@@ -1,12 +1,12 @@
 type2str(t) = (t <: AbstractFloat) ? "f32" : "i32";
-itemtype(item) = type2str(typeof(item))
+wasmtype(item) = type2str(typeof(item))
 
 parseitems(ssa, items) = parseitem.((ssa,), items)
 parseitem(ssa, item) = push!(ssa, item)
 parseitem(ssa, item::SlotNumber) = push!(ssa, "(local.get \$$(slotnames[item.id]))")
 parseitem(ssa, item::TypedSlot) = push!(ssa, "(local.get \$$(slotnames[item.id]))")
 parseitem(ssa, item::Nothing) = push!(ssa, "(i32.const 0)")
-parseitem(ssa, item::Number) = push!(ssa, "($(itemtype(item)).const $(item))")
+parseitem(ssa, item::Number) = push!(ssa, "($(wasmtype(item)).const $(item))")
 
 function parseitem(ssa, item::Core.Compiler.Const)
     if !(isa(item.val,Expr) && string(item.val.args[1]) == "julia2wat.nothing")
@@ -69,10 +69,10 @@ function funcargitem2type(item)
         if (typeof(item) <: AbstractFloat)
             return Float64
         else
-            return Int64
+            return Int
         end
     end
-    return Float64
+    return Int
 end
 
 function specialfunc(ssa, items, head)
@@ -82,12 +82,13 @@ function specialfunc(ssa, items, head)
         #use userfuncsargs later with funcA2wat()
         userfuncsargs[string(head)] = Tuple{funcargitem2type.(items)...}
         return true
-    elseif !(string(head) in ["return","=","iterate","gotoifnot",":","getfield","ifelse","setindex!"])
+    elseif !(string(head) in ["return","=","iterate","gotoifnot",":","getfield","ifelse","setindex!","getindex"])
         return false
     #parse a few special functions manually in a somewhat hacky way
     elseif head == :(setindex!)
         push!(ssa, "call \$setindex") #without exclamation
         parseitems(ssa, items)
+        builtins[string(head)] = true
         #println("setindex items: ",items)
     elseif head == :(ifelse)
         push!(ssa, "(select")
@@ -96,7 +97,7 @@ function specialfunc(ssa, items, head)
         parseitem(ssa, items[1]) #ifelse(condition,a,b) => select(a,b,condition)
         push!(ssa, ")")
     elseif head == Symbol("return")
-        if string(items[1]) != "Main.julia2wat.nothing"
+        if !(string(items[1]) == "Main.julia2wat.nothing" || string(items[1]) == "julia2wat.nothing")
             parseitems(ssa, items)
         end
     elseif head == :(=)
@@ -119,12 +120,16 @@ function specialfunc(ssa, items, head)
         parseitems(ssa, SSA[items[1].id][1][1:3]) #get all iterator values aka 1,1,N in 1:1:N
         parseitems(ssa, items[2:end])
         push!(ssa, ")")
+        builtins[string(head)] = true
     elseif head == :(gotoifnot)
         push!(ssa, "br_if 1 (i32.eqz")
         parseitem(ssa, items[1])
         push!(ssa, ")")
     elseif head == Symbol("getfield")
         parseitem(ssa, items[1])
+    elseif head == Symbol("getindex")
+        parsefunc(ssa, items, head) #parse like normal
+        builtins[string(head)] = true
     end
     return true
 end

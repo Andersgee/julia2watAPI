@@ -11,10 +11,11 @@ using Core: TypedSlot, SSAValue
 include("ops.jl")
 include("SSA.jl")
 include("parser.jl")
+include("builtinswat.jl")
 
 function userfuncsDict(exs)
     funcs=[]
-    for i=1:length(exs.args)-1
+    for i=1:length(exs.args)-1 #skip last expression
         if isa(exs.args[i],Expr)
             push!(funcs, exs.args[i])
         end
@@ -49,18 +50,21 @@ function code_wat(str)
     result = eval(exs) #if result errors the return "syntax error" or smth
     global userfuncs = userfuncsDict(exs)
     global userfuncsargs = Dict()
-    
+    global builtins = Dict()
     #user supplied args for last expression
     func = eval(userfuncs[string(exs.args[end].args[1])])
-    #A = Base.typesof(eval(exs.args[end].args[2:end])...) #possible bug found: Base.typesof yields Expr (not type) for stuff like zeros(2,1)
     A = Tuple{[typeof(eval(exs.args[end].args[i])) for i=2:length(exs.args[end].args)]...}
     wat = funcA2wat(func, A, doexport=true)
 
     wats = []
-    for name in keys(userfuncsargs)
-        #func = eval(userfuncs[name])
-        #A = userfuncsargs[name]
-        push!(wats, funcA2wat(eval(userfuncs[name]), userfuncsargs[name]))
+    for fname in keys(userfuncsargs)
+        func = eval(userfuncs[fname])
+        A = userfuncsargs[fname]
+        push!(wats, funcA2wat(func, A))
+    end
+
+    for fname in keys(builtins)
+        push!(wats, builtinswat[fname])
     end
     return join(vcat("(module\n", wat, wats...,")"),"\n")
 end

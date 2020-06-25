@@ -1,6 +1,8 @@
 function funchead(cinfo,A,Rtype,slotnames,slottypes,doexport)
     str = []
     fname = cinfo.linetable[1].method
+
+    #function declaration
     push!(str, string("(func \$",fname))
     if (doexport)
         push!(str, string(" (export \"",fname,"\")"))
@@ -10,21 +12,27 @@ function funchead(cinfo,A,Rtype,slotnames,slottypes,doexport)
         push!(str, string(" (param \$",slotnames[i+1]," ",type2str(paramtypes[i]),")"))
     end
     if !(Rtype == Nothing)
-        push!(str,string(" (result ",type2str(Rtype),")\n"))
-    else
-        push!(str, "\n")
+        push!(str,string(" (result ",type2str(Rtype),")"))
     end
+    push!(str, "\n")
 
-    for i=2+length(paramtypes):length(slotnames)
-        if isa(slottypes[i],Union)
+    #cinfo.slottypes have types and cinfo.slotnames have symbols for the variables used in the function
+    #...but code_typed puts some special stuff in cinfo.slottypes and cinfo.slotnames if its an iterator variable
+    #so modify them to contain type and symbol like normal so I dont have have special logic for them later 
+    n=1+length(paramtypes)+1 #index of the first non-parameter slot (slotnames is for example [fname,param1,param2,slot1,slot2])
+    N=length(slotnames)
+    for i=n:N
+        if isa(slottypes[i],Union) #aka iterator variable
             iteratortuple = getfield(slottypes[i],2)
             iteratortype = getfield(iteratortuple,3)[1]
-            push!(str, string("(local \$","_",i," ",type2str(iteratortype),") "))
-            slotnames[i] = Symbol("_",i)
+            slotnames[i] = Symbol("_",i) #just pick something unique here
             slottypes[i] = iteratortype
-        else
-            push!(str,string("(local \$",slotnames[i]," ",type2str(slottypes[i]),") "))
         end 
+    end
+
+    #locals
+    for i=n:N
+        push!(str,string("(local \$",slotnames[i]," ",type2str(slottypes[i]),") "))
     end
     return join(str)
 end

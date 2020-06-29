@@ -13,18 +13,18 @@ function setup() {
   });
   editor.setFontSize("18pt");
 
-  editor.setValue(`function foo(y,x,z)
-  N=length(y)
-  for i=2:N
-    y[i] = bar(x,9.0) * y[i-1]*z
+  editor.setValue(`function foo(y,x)
+  N = length(y)
+  for n=2:N
+    y[n] = bar(x,9.0) * y[n-1]*x
   end
   return nothing
 end
 
-bar(x,y) = y*sqrt(x*2.0)
+bar(a,b) = a*sqrt(b*2.0)
 
 #press Ctrl+Enter to convert to webassembly text format
-foo(zeros(5,1), 1.0, 1.0)`,1);
+foo(zeros(5,1), 1.0,)`,1);
 
   //but = document.getElementById("but");
   //but.addEventListener("click", julia2wat);

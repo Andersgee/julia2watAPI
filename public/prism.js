@@ -751,7 +751,7 @@ Prism.languages.wasm = {
 				'punctuation': /\./
 			}
 		},
-		/\b(?:anyfunc|block|br(?:_if|_table)?|call(?:_indirect)?|data|drop|elem|else|end|export|func|local\.(?:get|set)|global|if|import|local|loop|memory|module|mut|nop|offset|param|result|return|select|global\.(?:get|set)|start|table|tee_local|then|type|unreachable)\b/
+		/\b(?:anyfunc|block|br(?:_if|_table)?|call(?:_indirect)?|data|drop|elem|else|end|export|func|local\.(?:get|set|tee)|global|if|import|local|loop|memory|module|mut|nop|offset|param|result|return|select|global\.(?:get|set)|start|table|then|type|unreachable)\b/
 	],
 	'variable': /\$[\w!#$%&'*+\-./:<=>?@\\^_`|~]+/i,
 	'number': /[+-]?\b(?:\d(?:_?\d)*(?:\.\d(?:_?\d)*)?(?:[eE][+-]?\d(?:_?\d)*)?|0x[\da-fA-F](?:_?[\da-fA-F])*(?:\.[\da-fA-F](?:_?[\da-fA-D])*)?(?:[pP][+-]?\d(?:_?\d)*)?)\b|\binf\b|\bnan(?::0x[\da-fA-F](?:_?[\da-fA-D])*)?\b/,

@@ -1,3 +1,35 @@
+const example1 = `# a simple foo bar example
+bar(a,b) = a*sqrt(b*2.0)
+
+function foo(y,x)
+  k = 5.1
+  return y*y + bar(x*k, 3.1)
+end
+
+`
+
+const example2 = `# you can write matrix algebra yourself
+#for example y = W*x + b could look like this
+function muladd(y,W,x,b)
+  N = length(x)
+  M = length(y)
+  s = 0.0
+  for i=1:M
+    s = 0.0
+    for j=1:N
+      s += W[(j-1)*M+i]*x[j]
+    end
+    y[i] = s+b[i]
+  end
+  return nothing
+end
+
+`
+
+const howto = `#press Ctrl+Enter to convert to webassembly text format
+#muladd(rand(3,1), rand(3,4), rand(4,1), rand(3,1))
+foo(1.0, 2.0)`
+
 function setup() {
   window.editor = ace.edit("editor");
 
@@ -13,21 +45,9 @@ function setup() {
   });
   editor.setFontSize("18pt");
 
-  editor.setValue(`function foo(y,x)
-  N = length(y)
-  for n=2:N
-    y[n] = bar(x,9.0) * y[n-1]*x
-  end
-  return nothing
-end
+  editor.setValue(example1 + example2 + howto,1);
 
-bar(a,b) = a*sqrt(b*2.0)
-
-#press Ctrl+Enter to convert to webassembly text format
-foo(zeros(5,1), 1.0,)`,1);
-
-  //but = document.getElementById("but");
-  //but.addEventListener("click", julia2wat);
+  //document.getElementById("but").addEventListener("click", julia2wat);
   wat_text = document.getElementById("wat_text");
 }
 

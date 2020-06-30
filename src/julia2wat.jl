@@ -45,7 +45,7 @@ function funcA2wat(func, A; doexport=false)
 end
 
 function code_wat(str)
-    exs = Meta.parse("begin $str end")
+    exs = Meta.parse("begin $str \nend")
     try
         result = eval(exs)
     catch e

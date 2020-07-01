@@ -6,7 +6,7 @@ or do a post request:
 using HTTP
 
 juliatext = """
-f(x)=x*7
+f(x)=x*7.0
 f(3.1)
 """
 
@@ -17,10 +17,10 @@ response body:
 (module
 
 (func $f (export "f") (param $x f32) (result f32)
-( f32.mul (local.get $x) (i32.const 7) ) 
+( f32.mul (local.get $x) (f32.const 7.0) ) 
 )
 
 )
 
-;;evaluated by Julia to: 21.7"""
+;;evaluated by Julia to: 21.7
 ```

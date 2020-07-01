@@ -31,7 +31,6 @@ parsefunction(ssa, items, head) = specialfunc(ssa, items, head) || parsefunc(ssa
 
 function parsefunc(ssa, items, head)
     Nitems = length(items)
-    println("parsefunc [ssatype,head]:",[ssatype,head])
     push!(ssa,"(")
     if (isa(ssatype,Type) && ssatype <: AbstractFloat && head in keys(f32ops))
         fname = f32ops[head][1]
@@ -55,11 +54,34 @@ function parsefunc(ssa, items, head)
 
         push!(ssa, fname)
     else
+        #this is last resort of parser and just puts call $funcname
+        isprint = string(head) == "println" || string(head) == "printvec"
         consumed = Nitems
-        push!(ssa, "call \$$(head)")
-
-        builtinswat[string(head)] = """(func \$$(head) (import "imports" "$(head)") (param f32))"""
-        builtins[string(head)] = true
+        if isprint
+            pop!(ssa) #remove the added paren
+            push!(ssa, "call \$$(head)")
+            parseitems(ssa, items)
+        else
+            push!(ssa, "call \$$(head)")
+        end
+        #since this function exists but is not in custom builtins and not in userprovided text...
+        #assume its supposed to be imported, examples can be exp, log, sin, println etc.
+        if !(string(head) in keys(builtinswat) || string(head) in keys(userfuncs))
+            importstr = []
+            push!(importstr, """(func \$$(head) (import "imports" "$(head)") """)
+            for i=1:Nitems
+                push!(importstr, "(param f32) ") #not sure how to get the types for this
+            end
+            if isprint
+                push!(importstr, ")")
+            else
+                push!(importstr, "(result f32))")
+            end
+            push!(imports, join(importstr))
+        end
+        if isprint
+            return
+        end
     end
 
     for i=1:Nitems
@@ -94,9 +116,9 @@ function specialfunc(ssa, items, head)
         return false
     #parse a few special functions manually in a somewhat hacky way
     elseif head == :(length)
-        push!(ssa, "(i32.trunc_f32_s")
+        push!(ssa, "(i32.trunc_f32_s (f32.load ")
         parseitem(ssa, items[1])
-        push!(ssa, ")")
+        push!(ssa, ") )")
     elseif head == :(setindex!)
         push!(ssa, "call \$setindex") #without exclamation
         parseitems(ssa, items)

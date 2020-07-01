@@ -31,6 +31,7 @@ parsefunction(ssa, items, head) = specialfunc(ssa, items, head) || parsefunc(ssa
 
 function parsefunc(ssa, items, head)
     Nitems = length(items)
+    println("parsefunc [ssatype,head]:",[ssatype,head])
     push!(ssa,"(")
     if (isa(ssatype,Type) && ssatype <: AbstractFloat && head in keys(f32ops))
         fname = f32ops[head][1]
@@ -44,6 +45,10 @@ function parsefunc(ssa, items, head)
                 push!(ssa,"($(fname)")
             end
         end
+    elseif (ssatype==Array{Float64,2} && head in keys(f32vecops))
+        fname = f32vecops[head][1]
+        consumed = f32vecops[head][2]
+        push!(ssa, fname)
     elseif head in keys(i32ops)
         fname = i32ops[head][1]
         consumed = i32ops[head][2]
@@ -52,6 +57,9 @@ function parsefunc(ssa, items, head)
     else
         consumed = Nitems
         push!(ssa, "call \$$(head)")
+
+        builtinswat[string(head)] = """(func \$$(head) (import "imports" "$(head)") (param f32))"""
+        builtins[string(head)] = true
     end
 
     for i=1:Nitems

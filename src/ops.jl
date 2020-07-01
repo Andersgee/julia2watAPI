@@ -29,6 +29,7 @@ i32ops = Dict(
 :(count_ones)=>["i32.popcnt",1],
 :(float)=>["f32.convert_i32_s",1],
 :(Int)=>["i32.trunc_f32_s",1],
+:(^)=>["call \$powi",2],
 #""=>["i32.load",1]
 #""=>["i32.store",2]
 #""=>["i32.const",1]
@@ -56,10 +57,15 @@ f32ops = Dict(
 :(copysign)=>["f32.copysign",2],
 :(float)=>["f32.convert_i32_s",1],
 :(Int)=>["i32.trunc_f32_s",1],
+:(^)=>["call \$pow",2],
 #""=>["f32.neg",1],
 #""=>["f32.load",1],
 #""=>["f32.store",2],
 #""=>["f32.const",1],
+)
+
+f32vecops = Dict(
+:(*)=>["call \$matmul",2]
 )
 
 #( if expr (then stuff) (else stuff) )

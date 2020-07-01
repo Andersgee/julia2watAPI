@@ -7,10 +7,10 @@ module julia2wat
 using Base: CodeInfo, SlotNumber, GlobalRef, GotoNode, iterate
 using Core: TypedSlot, SSAValue
 
+include("builtinswat.jl")
 include("ops.jl")
 include("SSA.jl")
 include("parser.jl")
-include("builtinswat.jl")
 
 function userfuncsDict(exs)
     funcs=[]
@@ -76,7 +76,7 @@ function code_wat(str)
         push!(wats, builtinswat[fname])
     end
     evalresult = isa(result,Nothing) ? "" : "\n;;evaluated by Julia to: $(result)"
-    return join(vcat("(module\n", wat, wats...,")",evalresult),"\n")
+    return join(vcat("""(module\n(memory (import "imports" "memory") 1)\n""", wat, wats...,")",evalresult),"\n")
 end
 
 end

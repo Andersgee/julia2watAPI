@@ -37,6 +37,7 @@ function parsefunc(ssa, items, head)
         consumed = f32ops[head][2]
 
         if (head == :(-) && Nitems==1)
+            consumed=1
             push!(ssa, "f32.neg")
         else
             push!(ssa, fname)
@@ -68,6 +69,8 @@ function parsefunc(ssa, items, head)
             parseitems(ssa, items)
         else
             push!(ssa, "call \$$(head)")
+            parseitems(ssa, items)
+            push!(ssa, ")")
         end
         if !(string(head) in keys(builtinswat) || string(head) in keys(userfuncs))
             importstr = []
@@ -82,9 +85,7 @@ function parsefunc(ssa, items, head)
             end
             imports[string(head)] = join(importstr)
         end
-        if noextraparen
-            return
-        end
+        return
     end
 
     for i=1:Nitems

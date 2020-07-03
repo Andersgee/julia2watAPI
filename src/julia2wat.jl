@@ -61,7 +61,6 @@ function code_wat(str)
     global userfuncsargs = Dict()
     global builtins = Dict()
     global imports = Dict()
-    imports["memory"] = """(memory (import "imports" "memory") 1)"""
     #user supplied args for last expression
     func = eval(userfuncs[string(exs.args[end].args[1])])
     A = Tuple{[typeof(eval(exs.args[end].args[i])) for i=2:length(exs.args[end].args)]...}
@@ -87,7 +86,7 @@ function code_wat(str)
     end
 
     evalresult = isa(result,Nothing) ? "" : "\n;;evaluated by Julia to: $(result)"
-    return join(vcat("""(module\n""", importstrings...,"\n", wat, wats...,")",evalresult),"\n")
+    return join(vcat("""(module\n(memory (import "imports" "memory") 1)""", importstrings...,"\n", wat, wats...,")",evalresult),"\n")
 end
 
 end

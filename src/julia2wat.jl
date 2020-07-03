@@ -28,6 +28,7 @@ function funcA2wat(func, A; doexport=true)
 
     code = cinfo.code
     SSAtypes = cinfo.ssavaluetypes
+    global ssavaluetypes = cinfo.ssavaluetypes
     global slotnames = cinfo.slotnames
     global slottypes = cinfo.slottypes
     funcstr_start = funchead(cinfo,A,Rtype,slotnames,slottypes,doexport)

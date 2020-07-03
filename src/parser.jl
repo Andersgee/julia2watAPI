@@ -105,6 +105,11 @@ function funcargitem2type(item)
         else
             return Int
         end
+    elseif isa(item,SSAValue)
+        return ssavaluetypes[item.id]
+    else
+        #println("itemtype else: ",item)
+        #this is probably Core.Compiler.Const
     end
     return Int
 end

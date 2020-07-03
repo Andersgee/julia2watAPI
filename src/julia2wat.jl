@@ -23,7 +23,7 @@ function userfuncsDict(exs)
     return Dict(names .=> funcs)
 end
 
-function funcA2wat(func, A; doexport=false)
+function funcA2wat(func, A; doexport=true)
     cinfo, Rtype = code_typed(func, A; optimize=false, debuginfo=:none)[1]
 
     code = cinfo.code
@@ -60,14 +60,18 @@ function code_wat(str)
     global userfuncs = userfuncsDict(exs)
     global userfuncsargs = Dict()
     global builtins = Dict()
-    global imports = ["""(memory (import "imports" "memory") 1)"""]
+    global imports = Dict()
+    imports["memory"] = """(memory (import "imports" "memory") 1)"""
     #user supplied args for last expression
     func = eval(userfuncs[string(exs.args[end].args[1])])
     A = Tuple{[typeof(eval(exs.args[end].args[i])) for i=2:length(exs.args[end].args)]...}
     wat = funcA2wat(func, A, doexport=true)
+    if string(exs.args[end].args[1]) == "exports"
+        wat = []
+    end
 
     wats = []
-    for fname in keys(userfuncsargs)
+    for fname in keys(userfuncsargs)        
         func = eval(userfuncs[fname])
         A = userfuncsargs[fname]
         push!(wats, funcA2wat(func, A))
@@ -77,8 +81,13 @@ function code_wat(str)
         push!(wats, builtinswat[fname])
     end
 
+    importstrings=[]
+    for fname in keys(imports)
+        push!(importstrings, imports[fname])
+    end
+
     evalresult = isa(result,Nothing) ? "" : "\n;;evaluated by Julia to: $(result)"
-    return join(vcat("""(module\n""", join(imports,"\n"),"\n", wat, wats...,")",evalresult),"\n")
+    return join(vcat("""(module\n""", importstrings...,"\n", wat, wats...,")",evalresult),"\n")
 end
 
 end

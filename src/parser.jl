@@ -55,31 +55,34 @@ function parsefunc(ssa, items, head)
         push!(ssa, fname)
     else
         #this is last resort of parser and just puts call $funcname
-        isprint = string(head) == "println" || string(head) == "printvec"
+        #funcname can be either a builtin julia function such as sin exp log etc or a userdefined function
+        #however, stuff like println("a") or mul(y,w,x) solo on a line should not have extra bracket around them in .wat
+        #detect this situation by checking if ssatype == Any.
+        #also, if its not a userdefined or a custom builtins wat function; put a string in imports
+        #otherwise just do the normal parsing
+        noextraparen = ssatype == Any #string(head) == "println" || string(head) == "printvec"
         consumed = Nitems
-        if isprint
+        if noextraparen
             pop!(ssa) #remove the added paren
             push!(ssa, "call \$$(head)")
             parseitems(ssa, items)
         else
             push!(ssa, "call \$$(head)")
         end
-        #since this function exists but is not in custom builtins and not in userprovided text...
-        #assume its supposed to be imported, examples can be exp, log, sin, println etc.
         if !(string(head) in keys(builtinswat) || string(head) in keys(userfuncs))
             importstr = []
             push!(importstr, """(func \$$(head) (import "imports" "$(head)") """)
             for i=1:Nitems
                 push!(importstr, "(param f32) ") #not sure how to get the types for this
             end
-            if isprint
+            if string(head) == "println" #dont return anything from this particular import
                 push!(importstr, ")")
             else
                 push!(importstr, "(result f32))")
             end
-            push!(imports, join(importstr))
+            imports[string(head)] = join(importstr)
         end
-        if isprint
+        if noextraparen
             return
         end
     end

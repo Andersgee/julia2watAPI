@@ -19,7 +19,7 @@ function userfuncsDict(exs)
             push!(funcs, exs.args[i])
         end
     end
-    names = [string(funcs[i].args[1].args[1]) for i=1:length(funcs)]
+    names = [funcs[i].args[1].args[1] for i=1:length(funcs)]
     return Dict(names .=> funcs)
 end
 
@@ -62,23 +62,23 @@ function code_wat(str)
     global userfuncsargs = Dict()
     global builtins = Dict()
     global imports = Dict()
-    #user supplied args for last expression
-    func = eval(userfuncs[string(exs.args[end].args[1])])
+    global WATS = Dict()
+    global argsforlater = Dict()
+    #user supplied args for last expression aka root
+    fname = exs.args[end].args[1]
+    func = eval(userfuncs[fname])
     A = Tuple{[typeof(eval(exs.args[end].args[i])) for i=2:length(exs.args[end].args)]...}
-    wat = funcA2wat(func, A, doexport=true)
-    if string(exs.args[end].args[1]) == "exports"
-        wat = []
+    root = funcA2wat(func, A)
+    if fname == :(exports)
+        root = ""
     end
 
-    wats = []
-    for fname in keys(userfuncsargs)        
-        func = eval(userfuncs[fname])
-        A = userfuncsargs[fname]
-        push!(wats, funcA2wat(func, A))
+    for (fname,args) in argsforlater
+        WATS[fname] = funcA2wat(eval(fname), args) #this modifies argsforlater.. but it works..
     end
 
     for fname in keys(builtins)
-        push!(wats, builtinswat[fname])
+        WATS[fname] = builtinswat[fname]
     end
 
     importstrings=[]
@@ -87,7 +87,7 @@ function code_wat(str)
     end
 
     evalresult = isa(result,Nothing) ? "" : "\n;;evaluated by Julia to: $(result)"
-    return join(vcat("""(module\n(memory (import "imports" "memory") 1)""", importstrings...,"\n", wat, wats...,")",evalresult),"\n")
+    return join(vcat("""(module\n(memory (import "imports" "memory") 1)""", importstrings...,"\n", root, values(WATS)..., ")",evalresult),"\n")
 end
 
 end

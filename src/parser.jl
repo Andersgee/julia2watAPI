@@ -40,6 +40,9 @@ function parsefunc(ssa, items, head)
             consumed=1
             push!(ssa, "f32.neg")
         else
+            if head == :(^)
+                imports["pow"] = """(func \$pow (import "imports" "pow") (param f32) (result f32))"""
+            end
             push!(ssa, fname)
             for i=1:Nitems-consumed
                 push!(ssa,"($(fname)")
@@ -52,6 +55,10 @@ function parsefunc(ssa, items, head)
     elseif head in keys(i32ops)
         fname = i32ops[head][1]
         consumed = i32ops[head][2]
+
+        if head == :(^)
+            imports["powi"] = """(func \$powi (import "imports" "powi") (param f32) (result i32))"""
+        end
 
         push!(ssa, fname)
     else
@@ -72,14 +79,18 @@ function parsefunc(ssa, items, head)
             parseitems(ssa, items)
             push!(ssa, ")")
         end
-        if !(string(head) in keys(builtinswat) || string(head) in keys(userfuncs))
+
+        #how to know the return types of imports? must be some way.. TODO
+        if !(head in keys(builtinswat) || head in keys(userfuncs))
             importstr = []
             push!(importstr, """(func \$$(head) (import "imports" "$(head)") """)
             for i=1:Nitems
                 push!(importstr, "(param f32) ") #not sure how to get the types for this
             end
-            if string(head) == "println" #dont return anything from this particular import
+            if head == :(println) #dont return anything from this particular import
                 push!(importstr, ")")
+            elseif head == :(zeros) || head == :(rand) || head == :(randn)
+                push!(importstr, "(result i32))")
             else
                 push!(importstr, "(result f32))")
             end
@@ -96,7 +107,7 @@ function parsefunc(ssa, items, head)
     end
 end
 
-function funcargitem2type(item)
+function item2type(item)
     if isa(item,SlotNumber)
         return slottypes[item.id]
     elseif isa(item,Number)
@@ -115,11 +126,15 @@ function funcargitem2type(item)
 end
 
 function specialfunc(ssa, items, head)
-    if (string(head) in keys(userfuncs))
+    if (head in keys(userfuncs))
         parsefunc(ssa, items, head) #parse like normal
-        #but save what types the function was called with
-        #use userfuncsargs later with funcA2wat()
-        userfuncsargs[string(head)] = Tuple{funcargitem2type.(items)...}
+        println("head in userfuncs:", head)
+
+        #func = eval(userfuncs[head])
+        #A = Tuple{item2type.(items)...}
+        #WATS[head] = funcA2wat(func, A)
+        argsforlater[head] = Tuple{item2type.(items)...}
+        #WATS[head] = funcA2wat(eval(userfuncs[head]), Tuple{item2type.(items)...})
         return true
     elseif !(string(head) in ["length","return","=","iterate","gotoifnot",":","getfield","ifelse","setindex!","getindex"])
         return false
@@ -131,13 +146,14 @@ function specialfunc(ssa, items, head)
     elseif head == :(setindex!)
         push!(ssa, "call \$setindex") #without exclamation
         parseitems(ssa, items)
-        builtins[string(head)] = true
+        builtins[head] = true
         #println("setindex items: ",items)
     elseif head == :(ifelse)
+        #ifelse(condition,a,b) or condition ? a : b => wat: select(a,b,condition)
         push!(ssa, "(select")
         parseitem(ssa, items[2])
         parseitem(ssa, items[3])
-        parseitem(ssa, items[1]) #ifelse(condition,a,b) => select(a,b,condition)
+        parseitem(ssa, items[1])
         push!(ssa, ")")
     elseif head == Symbol("return")
         if !(string(items[1]) == "Main.julia2wat.nothing" || string(items[1]) == "julia2wat.nothing")
@@ -163,7 +179,7 @@ function specialfunc(ssa, items, head)
         parseitems(ssa, SSA[items[1].id][1][1:3]) #get all iterator values aka 1,1,N in 1:1:N
         parseitems(ssa, items[2:end])
         push!(ssa, ")")
-        builtins[string(head)] = true
+        builtins[head] = true
     elseif head == :(gotoifnot)
         push!(ssa, "br_if 1 (i32.eqz")
         parseitem(ssa, items[1])
@@ -172,7 +188,7 @@ function specialfunc(ssa, items, head)
         parseitem(ssa, items[1])
     elseif head == Symbol("getindex")
         parsefunc(ssa, items, head) #parse like normal
-        builtins[string(head)] = true
+        builtins[head] = true
     end
     return true
 end

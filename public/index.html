@@ -1,35 +1,57 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-93464301-3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'UA-93464301-3');
-  </script>
-  <title>julia2wat</title>
-  <meta name="description" content="Online prototype for julia to webassembly text format (.jl to .wat)."/>
-  <link rel="icon" href="jw.png">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.min.js"></script>
-  <script src="js/theme-monokai.js" charset="utf-8"></script>
-  <script src="js/mode-julia.js" charset="utf-8"></script>
-  <link rel="stylesheet" href="prism.css" />
-  <script defer src="/js/main.js"></script>
-  <style>
-    html,body {margin:0;padding:0;height:100%;width:100%;}
-    #container {height:100%;width:auto;white-space:nowrap;overflow:hidden;}
-    #editor {height:100%;width:50%;display:inline-block;position:absolute;}
-    #wat {height:100%;width:50%;display:inline-block;position:absolute;left:50%}
-    pre {margin:0!important;padding:0!important;}
-  </style>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>julia2wat</title>
+    <meta
+      name="description"
+      content="Online version of WebAssemblyText.jl - Translate julia to webassembly text format (.jl to .wat)."
+    />
+    <link rel="icon" href="jw.png" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.11/ace.min.js"></script>
+    <script src="js/theme-monokai.js" charset="utf-8"></script>
+    <script src="js/mode-julia.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="prism.css" />
+    <script defer src="/js/main.js"></script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+      #container {
+        height: 100%;
+        width: auto;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      #editor {
+        height: 100%;
+        width: 50%;
+        display: inline-block;
+        position: absolute;
+      }
+      #wat {
+        height: 100%;
+        width: 50%;
+        display: inline-block;
+        position: absolute;
+        left: 50%;
+      }
+      pre {
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+    </style>
+  </head>
 
-<body>
-  <div id="container">
-    <div id="editor"> </div>
-    <pre id="wat" class="language-wasm"><code id="wat_text"></code></pre>
-  </div>
-  <script src="prism.js"></script>
-</body>
+  <body>
+    <div id="container">
+      <div id="editor"></div>
+      <pre id="wat" class="language-wasm"><code id="wat_text"></code></pre>
+    </div>
+    <script src="prism.js"></script>
+  </body>
 </html>

@@ -1,21 +1,18 @@
 using Genie, Genie.Router, Genie.Requests, Genie.Renderer.Json
-include("julia2wat.jl")
+using WebAssemblyText
 
 function launchServer(port)
+  Genie.config.run_as_server = true
+  Genie.config.server_host = "0.0.0.0"
+  Genie.config.server_port = port
+  Genie.config.cors_allowed_origins = ["*"]
+  Genie.config.server_handle_static_files = true
 
-    Genie.config.run_as_server = true
-    Genie.config.server_host = "0.0.0.0"
-    Genie.config.server_port = port
-    Genie.config.cors_allowed_origins = ["*"]
-    Genie.config.server_handle_static_files = true
+  println("port set to $(port)")
 
-    println("port set to $(port)")
-
-    route("/") do
-        #julia2wat.code_wat("f(x)=x*588; f(3.0)")
-        serve_static_file("index.html")
-    end
-
+  route("/") do
+      serve_static_file("index.html")
+  end
 
 	route("/jsonpayload", method = POST) do
 	  @show jsonpayload()
@@ -25,7 +22,11 @@ function launchServer(port)
 	end
 
   route("/text", method = POST) do
-	  julia2wat.code_wat(rawpayload())
+	  jlstring2wat(rawpayload())
+  end
+
+  route("/text_barebone", method = POST) do
+	  jlstring2wat_barebone(rawpayload())
   end
   
   Genie.AppServer.startup()

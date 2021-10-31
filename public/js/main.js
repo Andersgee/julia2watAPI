@@ -31,6 +31,8 @@ const howto = `#press Ctrl+Enter to convert to webassembly text format
 foo(1.0, 2.0)`;
 
 function setup() {
+  dragElement(document.getElementById("separator"), "H");
+
   window.editor = ace.edit("editor");
 
   var JuliaMode = ace.require("ace/mode/julia").Mode;
@@ -69,7 +71,7 @@ async function fetchwat(text, endpoint) {
 function update_wat_text(endpoint = "/text_barebone") {
   fetchwat(editor.getValue(), endpoint).then((wat) => {
     wat_text.innerHTML = wat;
-    Prism.highlightElement(wat_text);
+    Prism.highlightElement(wat_text); //re-run syntax highlight
     //Prism.highlightAll();
   });
 }
